@@ -13,6 +13,8 @@ import javax.comm.SerialPortEvent;
 import javax.comm.SerialPortEventListener;
 import javax.comm.UnsupportedCommOperationException;
 
+import org.apache.log4j.Logger;
+
 import xzw.InfoBean;
 
 /**
@@ -31,6 +33,8 @@ public class CommUtil implements Runnable,SerialPortEventListener{
 	public Thread thread;
 	
 	private final BlockingQueue<Object> result = new ArrayBlockingQueue<Object>(1);
+	
+	private Logger logger = Logger.getLogger(CommUtil.class);
 	
 //	public static void main(String[] args) {
 //		CommUtil comUtil = new CommUtil("9600", 8, 1, 0);
@@ -59,20 +63,28 @@ public class CommUtil implements Runnable,SerialPortEventListener{
 			thread = new Thread(this);
 			thread.start();
 			String str = (String) result.poll();
+			String string[] = str.split(",");
+			infoBean.setTempertaure(string[0]);
+			infoBean.setHumidity(string[1]);
+			infoBean.setParticulateMatter(string[2]);
 		} catch (NoSuchPortException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			logger.info(e.getMessage());
 		} catch (PortInUseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			logger.info(e.getMessage());
 		} catch (UnsupportedCommOperationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			logger.info(e.getMessage());
 		} catch (TooManyListenersException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			logger.info(e.getMessage());
 		}
-		return null;
+		return infoBean;
 	}
 
 	@Override
@@ -98,6 +110,7 @@ public class CommUtil implements Runnable,SerialPortEventListener{
 				}
 				strBuf.append(new String(readBuffer));
 			} catch (IOException e) {
+				logger.info(e.getMessage());
 			}
 			str = strBuf.toString();
 			result.add(str);
@@ -115,6 +128,7 @@ public class CommUtil implements Runnable,SerialPortEventListener{
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			logger.info(e.getMessage());
 		}
 	}
 }
